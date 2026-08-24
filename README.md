@@ -1,50 +1,62 @@
-# Welcome to your Expo app 👋
+# Limo Driver
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Driver-facing companion app for the dispatch system in `my-project` (the
+sibling folder next to this one). Built with [Expo](https://expo.dev) +
+[Expo Router](https://docs.expo.dev/router/introduction/), plain
+JavaScript (no TypeScript, to match `my-project`'s stack).
 
-## Get started
+Built on **Expo SDK 54** specifically because that's what the Expo Go
+app on the App Store/Play Store actually supports right now — Expo Go
+only ever supports one SDK version at a time, and newer SDKs (55+)
+aren't available through it yet. If `npx expo start` ever suggests
+upgrading past SDK 54, don't, until Expo Go itself has caught up (check
+your Expo Go app's version against https://docs.expo.dev/versions/latest/
+before upgrading).
 
-1. Install dependencies
+## What this connects to
 
-   ```bash
-   npm install
-   ```
+The backend already has the API this app is meant to call:
 
-2. Start the app
+- `GET /trip-offers/mine?driverId=...` — trips currently offered to a
+  driver (see `routes/tripOffers.js` in `my-project`)
+- `POST /trip-offers/:tripId/accept` — accept an offered trip
 
-   ```bash
-   npx expo start
-   ```
+That system (utils/tripOfferEngine.js, the "Bidding" status) is
+currently **disabled** in `my-project/server.js` until this app is far
+enough along to actually use it — see the comments there for how to
+turn it back on.
 
-In the output, you'll find options to open the app in a
+No driver login/auth exists yet on either side — `routes/tripOffers.js`
+takes a bare `driverId` with no verification. That needs real auth
+before this app (or that backend route) is exposed to anyone but you.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Running it
 
 ```bash
-npm run reset-project
+npm install
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Scan the QR code with the [Expo Go](https://expo.dev/go) app on your
+phone to run it live. Your phone and this computer need to be on the
+**same Wi-Fi network** — the app talks to the backend via this
+machine's LAN IP (see `src/constants/api.js`), not `localhost`, since
+`localhost` on the phone means the phone itself.
 
-## Learn more
+The backend (`my-project`) needs to actually be running
+(`node server.js`) for anything beyond the bare scaffold screen to work.
 
-To learn more about developing your project with Expo, look at the following resources:
+## Project layout
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- `src/app/` — screens, using Expo Router's file-based routing (a file
+  here = a route)
+- `src/constants/api.js` — backend base URL
+- `app.json` — Expo config (name, icons, splash screen, etc.)
 
-## Join the community
+## Android emulator instead of a physical phone
 
-Join our community of developers creating universal apps.
+Use `10.0.2.2` instead of the LAN IP in `src/constants/api.js` — the
+emulator maps that address back to this machine's own `localhost`.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+iOS Simulator isn't available on Windows; Expo Go on a physical iPhone
+works the same as Android does above.
