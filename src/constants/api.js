@@ -13,8 +13,4 @@
 // Android emulator only: use 10.0.2.2 instead, which the emulator maps
 // back to the host machine's localhost.
 //
-// TEMPORARY for off-Wi-Fi testing: pointed at a Cloudflare quick tunnel
-// forwarding to this machine's port 5000, since a remote tester isn't on
-// this network. Swap back to the LAN IP above for normal same-Wi-Fi
-// development.
-export const API_BASE_URL = "https://stars-receiver-gen-paintball.trycloudflare.com";
+export const API_BASE_URL = "http://192.168.0.6:5000";
