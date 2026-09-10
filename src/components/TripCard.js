@@ -51,6 +51,12 @@ export default function TripCard({ trip, actions }) {
           {trip.FLTscheduled ? <DetailRow label="Flt Scheduled" value={trip.FLTscheduled} /> : null}
           {trip.FLTactual ? <DetailRow label="Flt Actual" value={trip.FLTactual} /> : null}
           {trip.FLTstatus ? <DetailRow label="Flt Status" value={trip.FLTstatus} /> : null}
+          {trip.DriverNotes ? (
+            <View style={styles.notesBlock}>
+              <Text style={styles.detailLabel}>Notes</Text>
+              <Text style={styles.notesText}>{trip.DriverNotes}</Text>
+            </View>
+          ) : null}
         </View>
       )}
     </Pressable>
@@ -129,5 +135,14 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     flexShrink: 1,
     textAlign: "right",
+  },
+  notesBlock: {
+    marginTop: 4,
+    gap: 2,
+  },
+  notesText: {
+    fontSize: 13,
+    fontWeight: "500",
+    color: "#333",
   },
 });

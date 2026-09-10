@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import { useTrips } from "../../lib/TripsContext";
+import { openNavigationTo } from "../../lib/navigation";
 import TripListScreen from "../../components/TripListScreen";
 
 // Mirrors STATUS_PROGRESSION in routes/driverTrips.js -- the driver walks
@@ -22,10 +23,25 @@ export default function CurrentTab() {
   const { trips, advance, requestNoShow } = useTrips();
   const [busyTripId, setBusyTripId] = useState(null);
 
-  const handleAdvance = async (tripId) => {
-    setBusyTripId(tripId);
+  // Auto-opens turn-by-turn navigation for whichever leg the driver is
+  // now on -- pickup once they're heading out ("On the way"), drop-off
+  // once the customer's in the car. Keyed off the trip's status BEFORE
+  // this advance call (the transition just made), not the new one, so
+  // there's no extra round-trip to figure out what just happened. The
+  // "Arrived" transition intentionally opens nothing -- there's no way
+  // for this app to force-close Google Maps (no OS allows one app to
+  // dismiss another), so "removing" it just means not launching it
+  // again; Maps is already backgrounded once the driver switches back
+  // here to tap the button.
+  const handleAdvance = async (trip) => {
+    setBusyTripId(trip._id);
     try {
-      await advance(tripId);
+      await advance(trip._id);
+      if (trip.Status === "accepted" || trip.Status === "confirmed") {
+        openNavigationTo(trip.PUlocation);
+      } else if (trip.Status === "Arrived") {
+        openNavigationTo(trip.DOlocation);
+      }
     } catch (err) {
       Alert.alert("Couldn't update status", err.message);
     } finally {
@@ -76,7 +92,7 @@ export default function CurrentTab() {
               </Pressable>
               <Pressable
                 style={[styles.button, busy && styles.disabled]}
-                onPress={() => handleAdvance(trip._id)}
+                onPress={() => handleAdvance(trip)}
                 disabled={busy}
               >
                 <Text style={styles.buttonText}>{busy ? "…" : "Customer in car"}</Text>
@@ -91,7 +107,7 @@ export default function CurrentTab() {
         return (
           <Pressable
             style={[styles.button, busy && styles.disabled]}
-            onPress={() => handleAdvance(trip._id)}
+            onPress={() => handleAdvance(trip)}
             disabled={busy}
           >
             <Text style={styles.buttonText}>{busy ? "…" : `Mark: ${next}`}</Text>
